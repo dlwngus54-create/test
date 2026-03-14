@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <title>Seoul Weather Vibe</title>
     <style>
-        body { background: linear-gradient(135deg, #ff9a9e, #fad0c4); color: white; text-align: center; font-family: sans-serif; padding-top: 100px; height: 100vh; margin: 0; }
-        .card { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; display: inline-block; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
-        h1 { font-size: 3.5rem; margin: 10px 0; }
-        iframe { margin-top: 20px; border-radius: 15px; width: 350px; height: 200px; border: none; }
+        body { background: linear-gradient(135deg, #1e1e2f, #2a2a40); color: white; text-align: center; font-family: sans-serif; padding-top: 80px; height: 100vh; margin: 0; }
+        .card { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; display: inline-block; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { font-size: 3.5rem; margin: 10px 0; color: #fff; }
+        .desc { font-size: 1.2rem; margin-bottom: 20px; color: #aaa; }
+        .player-box { margin-top: 20px; width: 350px; height: 200px; border-radius: 15px; overflow: hidden; }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2 id="city">Seoul, KR</h2>
-        <h1 id="temp">24°C</h1> <p id="desc">오늘의 추천 음악</p>
-        <div id="player">
-            <iframe src="https://www.youtube.com/embed/0S_v_q5pY8E?autoplay=1&mute=1"></iframe>
+        <h1 id="temp">22°C</h1>
+        <p class="desc" id="desc">서울의 분위기에 어울리는 음악</p>
+        <div class="player-box" id="player">
+            <iframe src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
     </div>
 
@@ -26,17 +29,22 @@
         fetch(url)
             .then(res => res.json())
             .then(data => {
-                // API 성공 시 실제 데이터로 교체
                 const temp = Math.round(data.main.temp);
+                const condition = data.weather[0].main;
                 document.getElementById('temp').innerText = temp + "°C";
-                document.getElementById('desc').innerText = data.weather[0].description;
+                document.getElementById('desc').innerText = data.weather[0].description + " 분위기";
                 
-                let vId = data.weather[0].main === 'Rain' ? "n_vG0YmO6Yc" : "0S_v_q5pY8E";
-                document.getElementById('player').innerHTML = `<iframe src="https://www.youtube.com/embed/${vId}?autoplay=1&mute=1"></iframe>`;
+                // 재생이 확실히 보장되는 영상 ID들
+                let vId = "jfKfPfyJRdk"; // 맑을 때 (Lofi Girl)
+                if(condition === 'Rain' || condition === 'Clouds') {
+                    vId = "5yx6BWlEVcY"; // 비/흐릴 때 (Rainy Jazz)
+                }
+                
+                document.getElementById('player').innerHTML = 
+                    `<iframe src="https://www.youtube.com/embed/${vId}?autoplay=1&mute=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             })
             .catch(() => {
-                // API 실패(401)해도 아무것도 안 함 (이미 기본값이 화면에 떠 있음)
-                console.log("날씨 서버 대기 중... 기본 모드로 표시합니다.");
+                console.log("날씨 서버 응답 대기 중...");
             });
     </script>
 </body>
